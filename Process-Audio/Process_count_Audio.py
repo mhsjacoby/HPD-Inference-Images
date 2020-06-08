@@ -24,23 +24,6 @@ from AudioFunctions import *
 
 
 
-
-# ==================================================================
-
-# def check_pi(home, hub, day, hour, ,):
-#     found_on_pi = []
-#     pi_dir = os.path.join(pi_path, day)
-#     all_mins = sorted(mylistdir(pi_dir))
-#     # if len(all_mins) == 0:
-#     #     print("Date folder "+ date + " is empty")
-#     this_hour = [x for x in all_mins if x[0:2]==hour[0:2]]
-#         for minute in sorted(this_hour):
-#                     minute_path = os.path.join(date_folder_path, minute)
-#                     # print(f'Checking time folder: {minute_path} ...')
-#                     wavs = sorted(mylistdir(minute_path, bit='.wav'))
-
-
-
 # ==================================================================
 
 # Filter parameters
@@ -128,7 +111,8 @@ def process_wav(wav_name, date_folder_path, minute, fs=8000):
         print(f'Error processing file {wav_path}: {e}')
         return [], [], time_file
 
-
+# ==================================================================
+## Check pi for all audio files
 
 def check_pi(pi_path):
     found_on_pi = {}
@@ -146,18 +130,7 @@ def check_pi(pi_path):
                     name = audio_f.split('_')[0]
                     found_on_pi[name] = (day, minute)
     return found_on_pi
-            # this_hour = [x for x in all_mins if x[0:2]==hour[0:2]]
-            # for minute in sorted(all_mins):
-            #     minute_path = os.path.join(pi_dir, minute)
-            #             # print(f'Checking time folder: {minute_path} ...')
-            #             wavs = sorted(mylistdir(minute_path, bit='.wav'))
-
-
-
-
-
-# filter_banks = create_filter_banks()
-# filter_i_sampling_index, number_of_filters = create_filter_index(len(filter_banks))
+# ==================================================================
 
 
 if __name__ == '__main__':
@@ -181,11 +154,10 @@ if __name__ == '__main__':
     all_days_data = {}
 
     if pi_audio == True:
-        print('pi!')
-        # pi_path = os.path.join(paths['pi'], date)
-
+        print('Checking pi ...')
         found_on_pi = check_pi(paths['pi'])
-        print(len(found_on_pi))
+        print(f'Number of files found on pi: {len(found_on_pi)}')
+
 
     # ==== Start Looping Folders ====
     for date in dates:
@@ -193,17 +165,12 @@ if __name__ == '__main__':
         print("Loading date folder: " + date + "...")
         all_mins = sorted(mylistdir(date_folder_path))
 
-            # print(f'pi path: {pi_path}')
-
         all_seconds = []
 
         if len(all_mins) == 0:
             print(f'Date folder {date} is empty')
 
         else:
-            # hourly_content = {hour:np.nan for hour in hours}
-            # print(f'full path: {date_folder_path}')
-
             # Make storage directories
             downsampled_folder = make_storage_directory(os.path.join(save_root, 'audio_downsampled', date))
             processed_folder = make_storage_directory(os.path.join(save_root, 'audio_processed', date))
@@ -230,7 +197,6 @@ if __name__ == '__main__':
 
                     else:
                         for wav_name in wavs:
-
                             processed_audio, downsampled_audio, time_file = process_wav(wav_name, date_folder_path, minute)
 
                             if len(processed_audio) > 0:
@@ -239,7 +205,9 @@ if __name__ == '__main__':
                             else:
                                 print(f'no audio for {time_file}')
                                 ################################################################     
-                    
+
+
+                ### Check for missing files on pi and read in
                 list_hour_actual = [x for x in content_ps.keys()]
                 print(f'length of processed this hour: {len(content_ps)}')
 
@@ -265,6 +233,9 @@ if __name__ == '__main__':
                 missing_after = list(set(full_list)-set(list_hour_after))
                 missing_after = [f'{date} {x.replace(":", "")}' for x in missing_after]
                 print(f'found on pi: {len(missing)-len(missing_after)}')
+
+
+
 
                 # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
                 fname_ds = f'{hour}_ds.npz' # ==> intended to produce "0000", "0100", .....
