@@ -1,6 +1,8 @@
-# Image_Resize.py
-# Maggie Jacoby
-# created 03/22/2020 
+"""
+Image_Resize.py
+Maggie Jacoby
+created 03/22/2020
+"""
 
 import os
 import sys
@@ -17,7 +19,7 @@ This class takes the raw images that are saved on a hard drive
 and reduces the size (from 336 x 336 to 112 x 112), removes the dark images, 
 and counts imagees
 
-This file is meant to rpelace 'img_save.py' and 'img_extract.py' for unpickled images
+This file is meant to rpelace 'img_save.py' and 'img_extract.py' for already unpickled images
 """
 
 
