@@ -37,8 +37,8 @@ def make_all_seconds(hour, mins=60, secs=60, freq=10):
 
 def make_read_write_paths(root_dir, hub, pi_audio=False):
     read_root_path = os.path.join(root_dir, hub, 'audio')
-    save_dir = '/Users/maggie/Desktop/Audio_test_save'
-    save_root_path = os.path.join(save_dir, hub)
+    # save_dir = '/Users/maggie/Desktop/Audio_test_save'
+    save_root_path = os.path.join(read_root_path, hub, 'processed_audio')
     paths = {'read': read_root_path, 'write': save_root_path}
 
     if pi_audio:

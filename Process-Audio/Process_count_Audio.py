@@ -200,6 +200,7 @@ if __name__ == '__main__':
                             processed_audio, downsampled_audio, time_file = process_wav(wav_name, date_folder_path, minute)
 
                             if len(processed_audio) > 0:
+                                all_seconds.append(time_file)
                                 content_ds[time_file] = downsampled_audio # store downsampled (not dct)
                                 content_ps[time_file] = processed_audio # store content, similar timestamp format as env. csv(s) timestamp                      
                             else:
@@ -247,14 +248,17 @@ if __name__ == '__main__':
                 np.savez_compressed(downsampled_save_path, **content_ds)
                 np.savez_compressed(processed_save_path, **content_ps)
                 # ################################################################
-
+        
         all_seconds_set = sorted(list(set(all_seconds)))
         total = len(all_seconds_set)
-        summary = {'total': len(all_seconds_set), 'start_end': (all_seconds_set[0], all_seconds_set[-1])}
-        print(f'start: {all_seconds_set[0]}, end: {all_seconds_set[-1]}, len: {total}' )
+        if total == 0:
+            summary = {'total': 0, 'start_end': (0,0)}
+        else:
+            summary = {'total': len(all_seconds_set), 'start_end': (all_seconds_set[0], all_seconds_set[-1])}
+        print(date, summary)
         all_days_data[date] = summary
 
-        print("======================================")
+        print(f'======= end of day {date} =======')
 
     write_summary(home_name, hub, all_days_data)
 
