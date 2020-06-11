@@ -55,8 +55,8 @@ parser = argparse.ArgumentParser(description='Convert Wav to 12 DCTs')
 
 parser.add_argument('-root','--root_dir', default='/Users/maggie/Desktop/HPD_mobile_data/HPD-env/', type=str,
                     help='Root Directory') 
-parser.add_argument('-hub','--hub', default='RS1', type=str,
-                    help='Hub: RS1, BS2, etc')
+# parser.add_argument('-hub','--hub', default='RS1', type=str,
+#                     help='Hub: RS1, BS2, etc')
 parser.add_argument('-pi_audio', '--pi_audio', default=False, type=bool,
                     help='does pi audio exist? True if so, else leave blank')
 
@@ -132,137 +132,145 @@ def check_pi(pi_path):
     return found_on_pi
 # ==================================================================
 
-
 if __name__ == '__main__':
 
-    root_dir = args.root_dir
-    hub = args.hub
-    pi_audio = args.pi_audio
-    start_date_index = args.start_date_index
-    end_date = args.end_date
+    hubs = ['RS3', 'RS4', 'RS5']
+    
+    for hub in hubs:
+        root_dir = args.root_dir
+        # hub = args.hub
+        pi_audio = args.pi_audio
+        start_date_index = args.start_date_index
+        end_date = args.end_date
 
-    home_name = root_dir.split('/')[-1]
-    print(f'Home: {home_name}, hub: {hub}, pi_audio: {pi_audio}')
+        home_name = root_dir.split('/')[-1]
+        print(f'Home: {home_name}, hub: {hub}, pi_audio: {pi_audio}')
 
-    paths = make_read_write_paths(root_dir, hub, pi_audio)
-    read_root_path, save_root = paths['read'], paths['write']
+        paths = make_read_write_paths(root_dir, hub, pi_audio)
+        read_root_path, save_root = paths['read'], paths['write']
 
-    dates = sorted(mylistdir(read_root_path, bit='2019', end=False))
-    print(dates)
-    dates = dates[start_date_index:]
+        dates = sorted(mylistdir(read_root_path, bit='2019', end=False))
+        print(dates)
+        dates = dates[start_date_index:]
 
-    all_days_data = {}
+        all_days_data = {}
 
-    if pi_audio == True:
-        print('Checking pi ...')
-        found_on_pi = check_pi(paths['pi'])
-        print(f'Number of files found on pi: {len(found_on_pi)}')
-
-
-    # ==== Start Looping Folders ====
-    for date in dates:
-        date_folder_path = os.path.join(read_root_path, date)
-        print("Loading date folder: " + date + "...")
-        all_mins = sorted(mylistdir(date_folder_path))
-
-        all_seconds = []
-
-        if len(all_mins) == 0:
-            print(f'Date folder {date} is empty')
-
+        if pi_audio == True:
+            print('Checking pi ...')
+            found_on_pi = check_pi(paths['pi'])
+            print(f'Number of files found on pi: {len(found_on_pi)}')
         else:
-            # Make storage directories
-            downsampled_folder = make_storage_directory(os.path.join(save_root, 'audio_downsampled', date))
-            processed_folder = make_storage_directory(os.path.join(save_root, 'audio_processed', date))
-                        
-            hours = [str(x).zfill(2) + '00' for x in range(0,24)]
-
-            for hour in hours:
-                print('hour', hour)
-
-                # create dictionaries to store downsampled (*_ds) and processed (*_ps) audio
-                # content_ds = make_empty_dict(hour)
-                # content_ps = make_empty_dict(hour)
-                content_ds = {}
-                content_ps = {}
-                full_list = make_all_seconds(hour)
-                this_hour = [x for x in all_mins if x[0:2]==hour[0:2]]
-
-                for minute in sorted(this_hour):
-                    minute_path = os.path.join(date_folder_path, minute)
-                    wavs = sorted(mylistdir(minute_path, bit='.wav'))
-
-                    if len(wavs) == 0:
-                        print("Time folder "+ os.path.basename(minute_path) + " is empty")
-
-                    else:
-                        for wav_name in wavs:
-                            processed_audio, downsampled_audio, time_file = process_wav(wav_name, date_folder_path, minute)
-
-                            if len(processed_audio) > 0:
-                                all_seconds.append(time_file)
-                                content_ds[time_file] = downsampled_audio # store downsampled (not dct)
-                                content_ps[time_file] = processed_audio # store content, similar timestamp format as env. csv(s) timestamp                      
-                            else:
-                                print(f'no audio for {time_file}')
-                                ################################################################     
+            print('No pi audio files received')
+            found_on_pi = []
 
 
-                ### Check for missing files on pi and read in
-                list_hour_actual = [x for x in content_ps.keys()]
-                print(f'length of processed this hour: {len(content_ps)}')
+        # ==== Start Looping Folders ====
+        for date in dates:
+            date_folder_path = os.path.join(read_root_path, date)
+            print("Loading date folder: " + date + "...")
+            all_mins = sorted(mylistdir(date_folder_path))
 
-                missing = list(set(full_list)-set(list_hour_actual))
-                missing = [f'{date} {x.replace(":", "")}' for x in missing]
-                print(f'len of missing: {len(missing)}')
+            all_seconds = []
 
-                if len(missing) > 0:
-                    this_hour_on_pi = [x for x in found_on_pi if (x.split(' ')[0] == date and x.split(' ')[1][0:2] == hour[0:2])]
-                for m in missing:
-                    if m in this_hour_on_pi:
-                        print(f'found! {m}, {found_on_pi[m]}') 
-                        day, minute = found_on_pi[m]
+            if len(all_mins) == 0:
+                print(f'Date folder {date} is empty')
 
-                        # print(day, minute, f'{m}_audio.wav', os.path.join(paths['pi'], day))
-                        processed_pi, downsampled_pi, time_file = process_wav(f'{m}_audio.wav', os.path.join(paths['pi'], day), minute)
+            else:
+                # Make storage directories
+                downsampled_folder = make_storage_directory(os.path.join(save_root, 'audio_downsampled', date))
+                processed_folder = make_storage_directory(os.path.join(save_root, 'audio_dct', date))
+                            
+                hours = [str(x).zfill(2) + '00' for x in range(0,24)]
 
-                        if len(processed_pi) > 0:
-                            content_ds[time_file] = downsampled_pi # store downsampled (not dct)
-                            content_ps[time_file] = processed_pi # store content, similar timestamp format as env. csv(s) timestamp  
+                for hour in hours:
+                    print('hour', hour)
 
-                list_hour_after = [x for x in content_ps.keys()]
-                missing_after = list(set(full_list)-set(list_hour_after))
-                missing_after = [f'{date} {x.replace(":", "")}' for x in missing_after]
-                print(f'found on pi: {len(missing)-len(missing_after)}')
+                    # create dictionaries to store downsampled (*_ds) and processed (*_ps) audio
+                    # content_ds = make_empty_dict(hour)
+                    # content_ps = make_empty_dict(hour)
+                    content_ds = {}
+                    content_ps = {}
+                    full_list = make_all_seconds(hour)
+                    this_hour = [x for x in all_mins if x[0:2]==hour[0:2]]
+
+                    for minute in sorted(this_hour):
+                        minute_path = os.path.join(date_folder_path, minute)
+                        wavs = sorted(mylistdir(minute_path, bit='.wav'))
+
+                        if len(wavs) == 0:
+                            print("Time folder "+ os.path.basename(minute_path) + " is empty")
+
+                        else:
+                            for wav_name in wavs:
+                                processed_audio, downsampled_audio, time_file = process_wav(wav_name, date_folder_path, minute)
+
+                                if len(processed_audio) > 0:
+                                    all_seconds.append(time_file)
+                                    content_ds[time_file] = downsampled_audio # store downsampled (not dct)
+                                    content_ps[time_file] = processed_audio # store content, similar timestamp format as env. csv(s) timestamp                      
+                                else:
+                                    print(f'no audio for {time_file}')
+                                    ################################################################     
+
+
+                    ### Check for missing files on pi and read in
+                    list_hour_actual = [x for x in content_ps.keys()]
+                    print(f'length of processed this hour: {len(content_ps)}')
+
+                    missing = list(set(full_list)-set(list_hour_actual))
+                    missing = [f'{date} {x.replace(":", "")}' for x in missing]
+                    print(f'len of missing: {len(missing)}')
+
+                    
+                    
+                    if len(missing) > 0:
+                        if len(found_on_pi) > 0:
+                            this_hour_on_pi = [x for x in found_on_pi if (x.split(' ')[0] == date and x.split(' ')[1][0:2] == hour[0:2])]
+                            for m in missing:
+                                if m in this_hour_on_pi:
+                                    print(f'found! {m}, {found_on_pi[m]}') 
+                                    day, minute = found_on_pi[m]
+
+                                    # print(day, minute, f'{m}_audio.wav', os.path.join(paths['pi'], day))
+                                    processed_pi, downsampled_pi, time_file = process_wav(f'{m}_audio.wav', os.path.join(paths['pi'], day), minute)
+
+                                    if len(processed_pi) > 0:
+                                        content_ds[time_file] = downsampled_pi # store downsampled (not dct)
+                                        content_ps[time_file] = processed_pi # store content, similar timestamp format as env. csv(s) timestamp  
+
+                    list_hour_after = [x for x in content_ps.keys()]
+                    missing_after = list(set(full_list)-set(list_hour_after))
+                    missing_after = [f'{date} {x.replace(":", "")}' for x in missing_after]
+                    print(f'found on pi: {len(missing)-len(missing_after)}')
 
 
 
 
-                # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
-                fname_ds = f'{hour}_ds.npz' # ==> intended to produce "0000", "0100", .....
-                fname_ps = f'{hour}_ps.npz' # ==> intended to produce "0000", "0100", .....
+                    # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
+                    fname_ds = f'{hour}_ds.npz' # ==> intended to produce "0000", "0100", .....
+                    fname_ps = f'{hour}_ps.npz' # ==> intended to produce "0000", "0100", .....
 
-                downsampled_save_path = os.path.join(downsampled_folder, fname_ds)
-                processed_save_path = os.path.join(processed_folder, fname_ps)
+                    downsampled_save_path = os.path.join(downsampled_folder, fname_ds)
+                    processed_save_path = os.path.join(processed_folder, fname_ps)
 
-                np.savez_compressed(downsampled_save_path, **content_ds)
-                np.savez_compressed(processed_save_path, **content_ps)
-                # ################################################################
-        
-        all_seconds_set = sorted(list(set(all_seconds)))
-        total = len(all_seconds_set)
-        if total == 0:
-            summary = {'total': 0, 'start_end': (0,0)}
-        else:
-            summary = {'total': len(all_seconds_set), 'start_end': (all_seconds_set[0], all_seconds_set[-1])}
-        print(date, summary)
-        all_days_data[date] = summary
+                    np.savez_compressed(downsampled_save_path, **content_ds)
+                    np.savez_compressed(processed_save_path, **content_ps)
+                    # ################################################################
+            
+            all_seconds_set = sorted(list(set(all_seconds)))
+            total = len(all_seconds_set)
+            if total == 0:
+                summary = {'total': 0, 'start_end': (0,0)}
+            else:
+                summary = {'total': len(all_seconds_set), 'start_end': (all_seconds_set[0], all_seconds_set[-1])}
+            print(date, summary)
+            all_days_data[date] = summary
 
-        print(f'======= end of day {date} =======')
+            print(f'======= end of day {date} =======')
 
-    write_summary(home_name, hub, all_days_data)
+        write_summary(home_name, hub, all_days_data, root_dir)
 
-    print("Done")
+        print("Done")
 
 
 '''

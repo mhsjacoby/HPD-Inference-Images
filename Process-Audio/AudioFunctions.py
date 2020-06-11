@@ -38,7 +38,7 @@ def make_all_seconds(hour, mins=60, secs=60, freq=10):
 def make_read_write_paths(root_dir, hub, pi_audio=False):
     read_root_path = os.path.join(root_dir, hub, 'audio')
     # save_dir = '/Users/maggie/Desktop/Audio_test_save'
-    save_root_path = os.path.join(read_root_path, hub, 'processed_audio')
+    save_root_path = os.path.join(root_dir, hub, 'processed_audio')
     paths = {'read': read_root_path, 'write': save_root_path}
 
     if pi_audio:
@@ -52,10 +52,11 @@ def make_read_write_paths(root_dir, hub, pi_audio=False):
 
 # --------------------------------------------------------------------
 
-def write_summary(home, hub, days):
+def write_summary(home, hub, days, write_dir):
     total_per_day = 8640
     H = home.split('-')[0]
-    store_dir = make_storage_directory(f'/Users/maggie/Desktop/summary_test/HPD_mobile-{H}/{home}/Summaries/')
+    # store_dir = make_storage_directory(f'/Users/maggie/Desktop/summary_test/HPD_mobile-{H}/{home}/Summaries/')
+    store_dir = make_storage_directory(os.path.join(write_dir,'Summaries'))
     fname = os.path.join(store_dir, f'{H}-{hub}-audio-summary.txt')
 
     with open(fname, 'w+') as writer:
