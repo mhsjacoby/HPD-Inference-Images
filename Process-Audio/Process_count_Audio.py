@@ -250,22 +250,11 @@ if __name__ == '__main__':
                     missing_after = [f'{date} {x.replace(":", "")}' for x in missing_after]
                     print(f'found on pi: {len(missing)-len(missing_after)}')
 
-
-                    # Make full dict and add all files to it
-                    # full_content_ds = make_empty_dict(hour)
-                    # full_content_ps = make_empty_dict(hour)
-                    # print(f'orig: {content_ps.keys()}')
-                    # print(f'full: {full_content_ps.keys()}')
-
-                    # for x in content_ds.keys():
-                    #     full_content_ds[x] = content_ds[x]
-
                     full_content_ds = make_fill_full(content_ds, hour)
-                    print(f'len of full: {len(full_content_ds)}, full with value: {sum(1 for i in full_content_ds.values() if len(i) > 0)}, len of content_ds: {len(content_ds)}')
+                    print(f'len of full ds: {len(full_content_ds)}, full with value: {sum(1 for i in full_content_ds.values() if len(i) > 0)}, len of content_ds: {len(content_ds)}')
                     full_content_ps = make_fill_full(content_ps, hour)
-                    print(f'len of full ps: {len(full_content_ps)}, full with value: {sum(1 for i in full_content_ps.values() if len(i) > 0)}, len of content_ds: {len(content_ps)}')
+                    print(f'len of full ps: {len(full_content_ps)}, full with value: {sum(1 for i in full_content_ps.values() if len(i) > 0)}, len of content_ps: {len(content_ps)}')
 
-                    # sum(1 for i in x.values() if len(i) > 0)
 
                     # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
                     fname_ds = f'{date}_{hour}_{hub}_{home_name.split("-")[0]}_ds.npz' # ==> intended to produce "0000", "0100", .....
@@ -274,8 +263,8 @@ if __name__ == '__main__':
                     downsampled_save_path = os.path.join(downsampled_folder, fname_ds)
                     processed_save_path = os.path.join(processed_folder, fname_ps)
 
-                    np.savez_compressed(downsampled_save_path, **content_ds)
-                    np.savez_compressed(processed_save_path, **content_ps)
+                    np.savez_compressed(downsampled_save_path, **full_content_ds)
+                    np.savez_compressed(processed_save_path, **full_content_ps)
                     # ################################################################
             
             all_seconds_set = sorted(list(set(all_seconds)))
