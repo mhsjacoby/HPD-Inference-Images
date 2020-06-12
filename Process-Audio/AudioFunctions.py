@@ -35,6 +35,13 @@ def make_all_seconds(hour, mins=60, secs=60, freq=10):
 
 # --------------------------------------------------------------------
 
+def make_fill_full(content, hour):
+    full_content = make_empty_dict(hour)
+    for x in content.keys():
+        full_content[x] = content[x]
+    return full_content
+
+
 def make_read_write_paths(root_dir, hub, pi_audio=False):
     read_root_path = os.path.join(root_dir, hub, 'audio')
     # save_dir = '/Users/maggie/Desktop/Audio_test_save'

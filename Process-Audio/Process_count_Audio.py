@@ -132,10 +132,16 @@ def check_pi(pi_path):
     return found_on_pi
 # ==================================================================
 
+
+
+
+
+
 if __name__ == '__main__':
 
-    hubs = ['RS3', 'RS4', 'RS5']
-    
+    hubs = ['RS1', 'RS2', 'RS3', 'RS4', 'RS5']
+    # hubs = ['BS2', 'BS3', 'BS4', 'RS5']
+
     for hub in hubs:
         root_dir = args.root_dir
         # hub = args.hub
@@ -144,7 +150,8 @@ if __name__ == '__main__':
         end_date = args.end_date
 
         home_name = root_dir.split('/')[-1]
-        print(f'Home: {home_name}, hub: {hub}, pi_audio: {pi_audio}')
+        h_num = home_name.split('-')[0]
+        print(f'Home: {home_name}, num: {h_num}, hub: {hub}, pi_audio: {pi_audio}')
 
         paths = make_read_write_paths(root_dir, hub, pi_audio)
         read_root_path, save_root = paths['read'], paths['write']
@@ -244,12 +251,26 @@ if __name__ == '__main__':
                     print(f'found on pi: {len(missing)-len(missing_after)}')
 
 
+                    # Make full dict and add all files to it
+                    # full_content_ds = make_empty_dict(hour)
+                    # full_content_ps = make_empty_dict(hour)
+                    # print(f'orig: {content_ps.keys()}')
+                    # print(f'full: {full_content_ps.keys()}')
 
+                    # for x in content_ds.keys():
+                    #     full_content_ds[x] = content_ds[x]
+
+                    full_content_ds = make_fill_full(content_ds, hour)
+                    print(f'len of full: {len(full_content_ds)}, full with value: {sum(1 for i in full_content_ds.values() if len(i) > 0)}, len of content_ds: {len(content_ds)}')
+                    full_content_ps = make_fill_full(content_ps, hour)
+                    print(f'len of full ps: {len(full_content_ps)}, full with value: {sum(1 for i in full_content_ps.values() if len(i) > 0)}, len of content_ds: {len(content_ps)}')
+
+                    # sum(1 for i in x.values() if len(i) > 0)
 
                     # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
-                    fname_ds = f'{hour}_ds.npz' # ==> intended to produce "0000", "0100", .....
-                    fname_ps = f'{hour}_ps.npz' # ==> intended to produce "0000", "0100", .....
-
+                    fname_ds = f'{date}_{hour}_{hub}_{home_name.split("-")[0]}_ds.npz' # ==> intended to produce "0000", "0100", .....
+                    fname_ps = f'{date}_{hour}_{hub}_{home_name.split("-")[0]}_ps.npz' # ==> intended to produce "0000", "0100", .....
+                    print(fname_ds)
                     downsampled_save_path = os.path.join(downsampled_folder, fname_ds)
                     processed_save_path = os.path.join(processed_folder, fname_ps)
 
