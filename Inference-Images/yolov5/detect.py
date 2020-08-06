@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore")
 
 def detect():
 
-	minute_fname, minute_occupancy = [], []
+	minute_fname, minute_occupancy, minute_conf = [], [], []
 	source, save_txt, imgsz = opt.source, opt.save_txt, opt.img_size
 
 	dataset = LoadImages(source, img_size=imgsz)
@@ -61,15 +61,19 @@ def detect():
 
 		# Inference
 		pred = model(img, augment=opt.augment)[0]
-		print(f'pred: {pred}')
+		
 		# Apply NMS
 		pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=[0], agnostic=opt.agnostic_nms)
-
+		# if len(pred) > 0:
+		# 	print(f'pred: {len(pred[0])}')
 		# Process detections
 		for i, det in enumerate(pred):  # detections per image
-			minute_occupancy.append(0 if det is None else 1)
-			
-	return minute_fname, minute_occupancy
+			M = 0
+			if det is not None:
+				M = max([float(x[4]) for x in det])
+			minute_conf.append(M)
+			minute_occupancy.append(0 if det is None else 1)			
+	return minute_fname, minute_occupancy, minute_conf
 
 
 
@@ -84,7 +88,7 @@ if __name__ == '__main__':
 	# parser.add_argument('--weights', type=str, default='weights/yolov5x.pt', help='model.pt path')
 	parser.add_argument('--source', type=str, default='inference/images', help='source')  # file/folder to read the img (constantly loops in the code)
 	parser.add_argument('--img-size', type=int, default=128, help='inference size (pixels)')
-	parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
+	parser.add_argument('--conf-thres', type=float, default=0.2, help='object confidence threshold')
 	parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
 	parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
 	parser.add_argument('--device', default='cpu', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
@@ -155,7 +159,7 @@ if __name__ == '__main__':
 			print("Date folder "+ os.path.basename(date_folder_path) + " is empty")
 		else:
 			# Created day-content placeholder
-			day_fname, day_occupancy = [], []			
+			day_fname, day_occupancy, day_conf = [], [], []			
 			date_folder_path = os.path.join(date_folder_path,"*")
 			
 			for time_folder_path in sorted(glob.glob(date_folder_path)):
@@ -172,17 +176,18 @@ if __name__ == '__main__':
 					opt.source = time_folder_path # 1 min folder ~ 60 img
 
 					with torch.no_grad():
-						min_fname, min_occ = detect() # detect this time folder
+						min_fname, min_occ, min_conf = detect() # detect this time folder
 						day_fname.extend(min_fname)
 						day_occupancy.extend(min_occ)
+						day_conf.extend(min_conf)
 
 
 			day_fname = [date_[:11]+date_[11:13]+":"+date_[13:15]+":"+date_[15:17] for date_ in day_fname] # date formatting
 			day_fname = [datetime.datetime.strptime(date_, '%Y-%m-%d %H:%M:%S') for date_ in day_fname] # date formatting
 
-			save_data = np.vstack((day_fname,day_occupancy))
+			save_data = np.vstack((day_fname, day_occupancy, day_conf))
 			save_data = np.transpose(save_data)
-			np.savetxt(os.path.join(save_root_path,date+".csv"), save_data, delimiter=',',fmt='%s',header="timestamp,occupancy",comments='')
+			np.savetxt(os.path.join(save_root_path,date+".csv"), save_data, delimiter=',',fmt='%s',header="timestamp,occupancy, confidence",comments='')
 
 
 	end = time.time()
