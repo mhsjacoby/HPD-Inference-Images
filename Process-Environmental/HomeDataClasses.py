@@ -98,7 +98,7 @@ class ReadEnv(HomeData):
         df['timestamp'] = pd.to_datetime(df['time'])
         df = df.drop(columns = ['time'])
         df = df.set_index('timestamp')
-        df.index = df.index.floor('10s')
+        # df.index = df.index.floor('10s')
         df.fillna(np.nan)
         return df
      

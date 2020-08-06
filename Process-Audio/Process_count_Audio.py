@@ -22,7 +22,7 @@ from datetime import datetime
 
 from AudioFunctions import *
 
-
+import time
 
 # ==================================================================
 
@@ -139,8 +139,10 @@ def check_pi(pi_path):
 
 if __name__ == '__main__':
 
-    hubs = ['RS1', 'RS2', 'RS3', 'RS4', 'RS5']
+    # hubs = ['RS1', 'RS2', 'RS3', 'RS4', 'RS5']
     # hubs = ['BS2', 'BS3', 'BS4', 'RS5']
+    hubs = ['BS4', 'BS5']
+
 
     for hub in hubs:
         root_dir = args.root_dir
@@ -149,16 +151,20 @@ if __name__ == '__main__':
         start_date_index = args.start_date_index
         end_date = args.end_date
 
-        home_name = root_dir.split('/')[-1]
+        home_name = root_dir.strip('/').split('/')[-1]
+
         h_num = home_name.split('-')[0]
         print(f'Home: {home_name}, num: {h_num}, hub: {hub}, pi_audio: {pi_audio}')
 
         paths = make_read_write_paths(root_dir, hub, pi_audio)
         read_root_path, save_root = paths['read'], paths['write']
+        print(f'reading from: {read_root_path}')
+        print(f'saving to: {save_root}')
+
 
         dates = sorted(mylistdir(read_root_path, bit='2019', end=False))
         print(dates)
-        dates = dates[start_date_index:]
+        # dates = dates[start_date_index:]
 
         all_days_data = {}
 
@@ -170,9 +176,10 @@ if __name__ == '__main__':
             print('No pi audio files received')
             found_on_pi = []
 
-
+        t_start = time.perf_counter()
         # ==== Start Looping Folders ====
         for date in dates:
+            t1 = time.perf_counter()
             date_folder_path = os.path.join(read_root_path, date)
             print("Loading date folder: " + date + "...")
             all_mins = sorted(mylistdir(date_folder_path))
@@ -251,9 +258,9 @@ if __name__ == '__main__':
                     print(f'found on pi: {len(missing)-len(missing_after)}')
 
                     full_content_ds = make_fill_full(content_ds, hour)
-                    print(f'len of full ds: {len(full_content_ds)}, full with value: {sum(1 for i in full_content_ds.values() if len(i) > 0)}, len of content_ds: {len(content_ds)}')
+                    # print(f'len of full ds: {len(full_content_ds)}, full with value: {sum(1 for i in full_content_ds.values() if len(i) > 0)}, len of content_ds: {len(content_ds)}')
                     full_content_ps = make_fill_full(content_ps, hour)
-                    print(f'len of full ps: {len(full_content_ps)}, full with value: {sum(1 for i in full_content_ps.values() if len(i) > 0)}, len of content_ps: {len(content_ps)}')
+                    # print(f'len of full ps: {len(full_content_ps)}, full with value: {sum(1 for i in full_content_ps.values() if len(i) > 0)}, len of content_ps: {len(content_ps)}')
 
 
                     # ################ npz_compressed saving at the end of each hour (or desired saving interval) ################
@@ -265,6 +272,8 @@ if __name__ == '__main__':
 
                     np.savez_compressed(downsampled_save_path, **full_content_ds)
                     np.savez_compressed(processed_save_path, **full_content_ps)
+                    # np.savez_compressed(downsampled_save_path, **content_ds)
+                    # np.savez_compressed(processed_save_path, **content_ps)
                     # ################################################################
             
             all_seconds_set = sorted(list(set(all_seconds)))
@@ -276,7 +285,9 @@ if __name__ == '__main__':
             print(date, summary)
             all_days_data[date] = summary
 
-            print(f'======= end of day {date} =======')
+            t_now = time.perf_counter()
+
+            print(f'======= end of day {date} --- time to processing one day: {t_now-t1} total so far: {t_now-t_start} =======')
 
         write_summary(home_name, hub, all_days_data, root_dir)
 
