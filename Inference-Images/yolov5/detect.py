@@ -48,7 +48,6 @@ def detect():
 		print(path)
 		fname = os.path.basename(path).split("_")
 		fname = fname[0] + " " + fname[1]
-		print(f'fname: {fname}')
 		minute_fname.append(fname)
 
 		# ==== Added Median Filtering Here ====
@@ -62,7 +61,7 @@ def detect():
 
 		# Inference
 		pred = model(img, augment=opt.augment)[0]
-
+		print(f'pred: {pred}')
 		# Apply NMS
 		pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=[0], agnostic=opt.agnostic_nms)
 
@@ -70,7 +69,6 @@ def detect():
 		for i, det in enumerate(pred):  # detections per image
 			minute_occupancy.append(0 if det is None else 1)
 			
-	print(minute_fname)
 	return minute_fname, minute_occupancy
 
 
@@ -157,9 +155,7 @@ if __name__ == '__main__':
 			print("Date folder "+ os.path.basename(date_folder_path) + " is empty")
 		else:
 			# Created day-content placeholder
-			day_fname, day_occupancy = [], []
-			print(f'day_fname (1): {day_fname}')
-			
+			day_fname, day_occupancy = [], []			
 			date_folder_path = os.path.join(date_folder_path,"*")
 			
 			for time_folder_path in sorted(glob.glob(date_folder_path)):
@@ -182,7 +178,6 @@ if __name__ == '__main__':
 
 
 			day_fname = [date_[:11]+date_[11:13]+":"+date_[13:15]+":"+date_[15:17] for date_ in day_fname] # date formatting
-			print(f'day_fname (2): {day_fname}')
 			day_fname = [datetime.datetime.strptime(date_, '%Y-%m-%d %H:%M:%S') for date_ in day_fname] # date formatting
 
 			save_data = np.vstack((day_fname,day_occupancy))
