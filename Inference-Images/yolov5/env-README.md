@@ -1,21 +1,23 @@
+Author: Sin Yong Tan, 2020-08-05
+
 --------------------
 Creating Env using yml file
 --------------------
 Option 1:
-`conda env create -f SY_yolov5.yml`
+- `conda env create -f SY_yolov5.yml`
 
 
 Activate env:
-`conda activate SY_yolov5`
+- `conda activate SY_yolov5`
 
 
 Option 2: (If first option doesn't work)
-`conda update conda`
-`conda create -n SY_yolov5 python==3.7 pip`
-`conda activate SY_yolov5`
-`conda install numpy==1.17`
-`conda install -c pytorch torchvision`
-`pip install -U -r requirements.txt`
+- `conda update conda`
+- `conda create -n SY_yolov5 python==3.7 pip`
+- `conda activate SY_yolov5`
+- `conda install numpy==1.17`
+- `conda install -c pytorch torchvision`
+- `pip install -U -r requirements.txt`
 
 
 
