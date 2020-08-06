@@ -1,25 +1,28 @@
 """
 detect.py
-Author: Sin Yong Tan 2020-08-04 based on code from: 
-update:2020-08-05 Maggie Jacoby: replaced if/else with dictionary
+Author: Sin Yong Tan 2020-08-04
+Based on code from: https://github.com/ultralytics/yolov5
+Updates by Maggie Jacoby 
+	2020-08-05: replaced if/else with dictionary, changed read paths, changed format of save date name
 
-This performs inference on the image files (112x112 size)
+This is the first step of inferencing code for images in the HPDmobile
+Inputs: path the folder (home, system, hub specific), which contain 112x112 png images
+Outputs: csv with 0/1  occupancy by day
+
 A median filter is first applied to the images (default filter size = 3)
-
 
 Run this:
 python detect.py -path /Users/maggie/Desktop/ -H 1 -sta_num 1 -sta_col G
 
 
-==== Note ====
+==== SY Notes ====
 Keep save_img and save_txt, update them to save_occ and save_csv(or save_json) later, depending on need
 
 How to save the labeled data with >1 bounding box?
 
 Check chronological order of the saving in csv (should be sorted ady) 
 
-14~16 FPS
-
+runs around 14~16 FPS
 """
 
 import argparse
