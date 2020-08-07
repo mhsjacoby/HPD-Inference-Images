@@ -67,6 +67,10 @@ def detect():
 
 		# Process detections
 		for i, det in enumerate(pred):  # detections per image
+			# M = 0
+			# if det is not None:
+			# 	M = max([float(x[4]) for x in det])
+			# minute_conf.append(M)
 			minute_occupancy.append(0 if det is None else 1)
 			
 	return minute_fname, minute_occupancy
@@ -129,6 +133,7 @@ if __name__ == '__main__':
 		os.makedirs(save_root_path)
 
 	dates = sorted(glob.glob(read_root_path))
+
 	dates = dates[start_date_index:]
 	print("Starting from:", os.path.basename(dates[0]))
 	# dates = dates[start_date_index:end_date_index] # Not implemented
@@ -146,7 +151,12 @@ if __name__ == '__main__':
 
 	for date_folder_path in dates:
 		date = os.path.basename(date_folder_path)
+		if not date.startswith('20'):
+			print(f'passing folder: {date}')
+			continue
+
 		print("Loading date folder: " + date + "...")
+		
 
 		''' Check if Directory is empty '''
 		times = os.listdir(date_folder_path)
@@ -154,7 +164,8 @@ if __name__ == '__main__':
 		if len(times) == 0: 
 			print("Date folder "+ os.path.basename(date_folder_path) + " is empty")
 		else:
-			# Created day-content placeholder
+			day_start = datetime.datetime.now()
+			Created day-content placeholder
 			day_fname, day_occupancy = [], []			
 			date_folder_path = os.path.join(date_folder_path,"*")
 			
@@ -183,9 +194,11 @@ if __name__ == '__main__':
 			save_data = np.vstack((day_fname,day_occupancy))
 			save_data = np.transpose(save_data)
 			np.savetxt(os.path.join(save_root_path,date+".csv"), save_data, delimiter=',',fmt='%s',header="timestamp,occupancy",comments='')
-
+			day_end = datetime.datetime.now()
+			print(f"Time to process day {date} on hub {station_num}: {str(day_end-day_start).split('.')[0]}")
 
 	end = time.time()
-	print("Time taken:",end-start)
+	total_time = (end-start)/3600
+	print(f'Total time taken to process hub {station_color}S{station_num} in home H{H_num}: {total_time:.02} hours')
 
 
