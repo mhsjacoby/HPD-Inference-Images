@@ -45,7 +45,6 @@ def detect():
 
 	# Run inference
 	for path, img, _, _ in dataset:
-		print(path)
 		fname = os.path.basename(path).split("_")
 		fname = fname[0] + " " + fname[1]
 		minute_fname.append(fname)
@@ -126,7 +125,7 @@ if __name__ == '__main__':
 	read_root_path = os.path.join(path,"H%s-%s"%(H_num,sta_col),"%sS%s"%(station_color,station_num),"img-downsized","*")
 	print("read_root_path: ", read_root_path)
 	
-	save_root_path = os.path.join(path,"Inference_DB","H%s-%s"%(H_num,sta_col),"%sS%s"%(station_color,station_num),"img")
+	save_root_path = os.path.join(path,"Inference_DB","H%s-%s"%(H_num,sta_col),"%sS%s"%(station_color,station_num),"img_conf")
 	print("save_root_path: ", save_root_path)
 
 	if not os.path.exists(save_root_path):
@@ -187,7 +186,7 @@ if __name__ == '__main__':
 
 			save_data = np.vstack((day_fname, day_occupancy, day_conf))
 			save_data = np.transpose(save_data)
-			np.savetxt(os.path.join(save_root_path,date+".csv"), save_data, delimiter=',',fmt='%s',header="timestamp,occupancy, confidence",comments='')
+			np.savetxt(os.path.join(save_root_path,date+".csv"), save_data, delimiter=',',fmt='%s',header="timestamp,occupancy,confidence",comments='')
 
 
 	end = time.time()
