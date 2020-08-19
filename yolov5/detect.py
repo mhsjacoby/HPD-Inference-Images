@@ -3,7 +3,7 @@ detect.py
 Author: Sin Yong Tan 2020-08-04
 Based on code from: https://github.com/ultralytics/yolov5
 Updates by Maggie Jacoby 
-	2020-08-05: replaced if/else with dictionary, changed read paths, changed format of save date name
+	2020-08-19: read any number of hub folders, specify end index, change color, hub, and sensor references
 
 This is the first step of inferencing code for images in the HPDmobile
 Inputs: path the folder (home, system, hub specific), which contain 112x112 png images
