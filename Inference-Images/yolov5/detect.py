@@ -147,7 +147,7 @@ if __name__ == '__main__':
 		dates = sorted(glob.glob(read_root_path))[start_date_index:]
 		print('Dates: ', [os.path.basename(d) for d in dates])
 
-		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img'))
+		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf'))
 		print("save_root_path: ", save_root_path)
 
 		# if not os.path.exists(save_root_path):

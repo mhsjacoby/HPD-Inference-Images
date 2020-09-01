@@ -1,9 +1,10 @@
 """
-detect.py
+confidence_detect.py
 Author: Sin Yong Tan 2020-08-04
 Based on code from: https://github.com/ultralytics/yolov5
 Updates by Maggie Jacoby 
-	2020-08-20: change end_date_index
+	2020-09-01: change filename
+	
 This is the first step of inferencing code for images in the HPDmobile database
 Inputs: path the folder (home, system, hub specific), which contain 112x112 png images
 Outputs: csv with 0/1  occupancy by day
