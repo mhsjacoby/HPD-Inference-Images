@@ -1,75 +1,91 @@
-'''
-cd "to_maggie"
-'''
-# csv10
+"""
+post_img.py
+Authors: Sin Yong Tan and Maggie Jacoby
+Edited: 2020-09-01
+
+Input: Folder with img inferences on the 1S (86400 per day) in day-wise CSVS
+Output: Day-wise CSVs with inferences on the 10 seconds
+
+To run: python3 post_img.py -path /Volumes/TOSHIBA-18/H6-black/ 
+	optional parameters: -hub, -start_date, -save_location
+
+
+"""
+
+
 import os
-from datetime import datetime
+import sys
+import glob
+import argparse
+
+import numpy as np
 import pandas as pd
 
-from glob import glob
+import time
+from datetime import datetime
 from natsort import natsorted
-import numpy as np
 
-
-# Function creates the "timeframe" for 1 day, in 1 sec(changable) freq. 
-def create_timeframe(file_path):
-	# "filepath" example: G:\H1-black\BS5\csv\H1_BS5_2019-02-23.csv
-	file_name = os.path.basename(file_path)  # csv file name with extension
-	index = file_name.find("-")
-	start_date = file_name[index-4:index+6]  # takes the "2019-02-23" part
-
-	end_date = datetime.strptime(start_date, '%Y-%m-%d')
-	start_date = datetime.strptime(start_date, '%Y-%m-%d')
-	end_date = end_date + pd.Timedelta(days=1)
-# 	time_frame = pd.date_range(start_date, end_date, freq = '10S').strftime('%Y-%m-%d %H:%M:%S').tolist()
-	time_frame = pd.date_range(start_date, end_date, freq = '10S').strftime('%Y-%m-%d %H:%M:%S')
-	time_frame = time_frame[:-1]
-
-	return time_frame, file_name
+from my_functions import *
 
 
 
+def create_timeframe(start_date, end_date=None, freq="10S"):
+    
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    if end_date == None:
+        end_date = start_date + pd.Timedelta(days=1)
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-# ==== Add Arg parsers ====
-
-H_num = 6
-station_color = "B"
-station_nums = [2]
-
-if station_color == "B":
-	sta_col = "black"
-elif station_color == "R":
-	sta_col = "red"
-elif station_color == "G":
-	sta_col = "green"
+    timeframe = pd.date_range(start_date, end_date, freq=freq).strftime('%Y-%m-%d %H:%M:%S')[:-1]
+    timeframe = pd.to_datetime(timeframe)
+    
+    return timeframe
 
 
-# for station_num in station_nums:
-station_num = station_nums[0]
 
-data_path = f"C:/Users/Sin Yong Tan/Desktop/to_maggie/H{H_num}-{sta_col}/Inference_DB/{station_color}S{station_num}/img_inf"
-save_path = os.path.join(data_path,"processed")
 
-# Create Folder
-if not os.path.exists(save_path):
-	os.makedirs(save_path)
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-path','--path', default='AA', type=str, help='path of stored data')
+	parser.add_argument('-hub', '--hub', default='', type=str, help='if only one hub... ')
+	parser.add_argument('-save_location', '--save', default='', type=str, help='location to store files (if different from path')
+	parser.add_argument('-start_date', '--start', default='', type=str, help='type day to start')
 
-days = natsorted(glob(os.path.join(data_path,"*.csv")))
+	args = parser.parse_args()
 
-for day in days:
-# day = days[0]
-# 	print(day)
+	path = args.path
+	save_path = args.save if len(args.save) > 0 else path
+	start_date = args.start
+	home_system = os.path.basename(path.strip('/'))
+	H = home_system.split('-')
+	H_num, color = H[0], H[1][0].upper()
+	hubs = [args.hub] if len(args.hub) > 0 else sorted(mylistdir(path, bit=f'{color}S', end=False))
+	print(f'List of Hubs: {hubs}')
 
-	data = pd.read_csv(day,squeeze=True,index_col=0) # Read in as pd.Series, for resample()
-	data.index = pd.to_datetime(data.index)
-	data = data.resample('10S', label='right', closed='right').max() # include right end value, labeled using right end(timestamp)
-	
-	timeframe, fname = create_timeframe(day)
-	timeframe = pd.to_datetime(timeframe)
-	
-	# https://stackoverflow.com/questions/19324453/add-missing-dates-to-pandas-dataframe
-	data = data.reindex(timeframe, fill_value=np.nan)
-	data.index.name = "timestamp"
-	data.to_csv(os.path.join(save_path,fname))
-	
 
+	for hub in hubs:
+		start = time.time()
+
+		print(f'Reading image inferences from from hub: {hub}')
+		read_root_path = os.path.join(path, 'Inference_DB', hub, 'img_inf_1S', '20*')
+		dates = sorted(glob.glob(read_root_path))
+		dates = [x for x in dates if os.path.basename(x) >= start_date]
+
+
+		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf_10S'))
+		print("save_root_path: ", save_root_path)
+
+		for date_folder_path in dates:
+			date = os.path.basename(date_folder_path).strip('.csv')
+			print(f"Loading date folder: {date} ...")
+
+			data = pd.read_csv(date_folder_path, squeeze=True, index_col=0) # Read in as pd.Series, for resample()
+			data.index = pd.to_datetime(data.index)
+			data = data.resample('10S', label='right', closed='right').max() # include right end value, labeled using right end(timestamp)
+
+			timeframe = create_timeframe(date)
+			data = data.reindex(timeframe, fill_value=np.nan)
+			data.index.name = "timestamp"
+			data.to_csv(os.path.join(save_root_path,f'{date}.csv'))
+			
