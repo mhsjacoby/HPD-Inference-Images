@@ -1,6 +1,5 @@
 # Introduction
-Author: Maggie Jacoby
-Updated: 2020-09-15
+Author: Maggie Jacoby, updated: 2020-09-15
 
 This repository contains the processing and inferencing code for the HPD mobile project.
 Helper files used: 
@@ -14,6 +13,8 @@ Helper files used:
 - Update `Image_Resize.py` to conform to newer practices.
 - Modify `confidence.py` to use `gen_argparse` functions (need to change how `yolo` specific arguments are passed).
 - Write code to print bounding boxes with confidence level on images that are saved via `copy_image.py`.
+- Move `confidence.py` up one level in the folder structure (need to change how models are accessed).
+- Archive  `detect.py`.
 
 
 # Process-Images
