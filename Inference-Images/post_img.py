@@ -8,8 +8,6 @@ Output: Day-wise CSVs with inferences on the 10 seconds
 
 To run: python3 post_img.py -path /Volumes/TOSHIBA-18/H6-black/ 
 	optional parameters: -hub, -start_date, -save_location
-
-
 """
 
 
@@ -23,7 +21,6 @@ import pandas as pd
 
 import time
 from datetime import datetime
-from natsort import natsorted
 
 from my_functions import *
 
@@ -68,12 +65,12 @@ if __name__ == '__main__':
 		start = time.time()
 
 		print(f'Reading image inferences from from hub: {hub}')
-		read_root_path = os.path.join(path, 'Inference_DB', hub, 'img_inf_1S', '20*')
+		read_root_path = os.path.join(path, 'Inference_DB', hub, 'img_1sec', '20*')
 		dates = sorted(glob.glob(read_root_path))
 		dates = [x for x in dates if os.path.basename(x) >= start_date]
 
 
-		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf_10S'))
+		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf'))
 		print("save_root_path: ", save_root_path)
 
 		for date_folder_path in dates:

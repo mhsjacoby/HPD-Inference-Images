@@ -5,7 +5,6 @@ Based on code from: https://github.com/ultralytics/yolov5
 Updates by Maggie Jacoby 
 	2020-08-24: new branch for my edits, change input format
 
-
 This is the first step of inferencing code for images in the HPDmobile
 Inputs: path the folder (home, system, hub specific), which contain 112x112 png images
 Outputs: csv with 0/1  occupancy by day
@@ -14,7 +13,12 @@ A median filter is first applied to the images (default filter size = 3)
 
 Run this:
 python detect.py -path /Users/maggie/Desktop/ -H 1 -sta_num 1 -sta_col G
-
+	optional arguments: 
+						-hub (if only one hub is to be run, default is to run all in the folder)
+						-save_location (if different from read path)
+						-start_index (file number, default is 0)
+						-number_files (previously end index. Default is 4)
+						-img_file_name (default is whatever starts with "img" eg, "img-downsized" or "img-unpickled")
 
 ==== SY Notes ====
 Keep save_img and save_txt, update them to save_occ and save_csv(or save_json) later, depending on need
@@ -37,6 +41,8 @@ import sys
 
 import warnings
 warnings.filterwarnings("ignore")
+
+from my_functions import *
 
 def detect():
 
@@ -67,25 +73,10 @@ def detect():
 
 		# Process detections
 		for i, det in enumerate(pred):  # detections per image
-			# M = 0
-			# if det is not None:
-			# 	M = max([float(x[4]) for x in det])
-			# minute_conf.append(M)
-			minute_occupancy.append(0 if det is None else 1)
-			
+			minute_occupancy.append(0 if det is None else 1)			
 	return minute_fname, minute_occupancy
 
-def mylistdir(directory, bit='', end=True):
-    filelist = os.listdir(directory)
-    if end:
-        return [x for x in filelist if x.endswith(f'{bit}') and not x.endswith('.DS_Store') and not x.startswith('Icon')]
-    else:
-         return [x for x in filelist if x.startswith(f'{bit}') and not x.endswith('.DS_Store') and not x.startswith('Icon')]
-        
-def make_storage_directory(target_dir):
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-    return target_dir
+
 
 
 
@@ -106,20 +97,19 @@ if __name__ == '__main__':
 	parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
 	parser.add_argument('--augment', action='store_true', help='augmented inference')
 
+
 	parser.add_argument('-f_sz', '--filter_size', type=int, default=3, help='Apply median filter to input img') # Added median filtering option
+	parser.add_argument('-img_file_name', '--img_fname', default='', type=str, help='Name of subfolder containing images')
 
-
+	# Standard arguments
 	parser.add_argument('-path','--path', default="AA", type=str, help='path of stored data')
 	parser.add_argument('-hub', '--hub', default='', type=str, help='if only one hub... ')
 	parser.add_argument('-save_location', '--save', default='', type=str, help='location to store files (if different from path')
-
-	parser.add_argument('-start_index','--start_date_index', default=0, type=int, help='Processing START Date index')
+	parser.add_argument('-start_date','--start', default='', type=str, help='Processing START Date index')
 	# parser.add_argument('-number_files', '--end_date_index', default=10, type=int, help='Number of files to read')
-	parser.add_argument('-img_file_name', '--img_fname', default='', type=str, help='Name of subfolder containing images')
 
 	args = parser.parse_args()
 	args.img_size = check_img_size(args.img_size)
-
 
 	path = args.path
 	save_path = args.save if len(args.save) > 0 else path
@@ -129,8 +119,7 @@ if __name__ == '__main__':
 	hubs = [args.hub] if len(args.hub) > 0 else sorted(mylistdir(path, bit=f'{color}S', end=False))
 	print(f'List of Hubs: {hubs}')
 
-	start_date_index = args.start_date_index
-	# end_date_index = args.end_date_index
+	start_date = args.start
 
 	for hub in hubs:
 		img_fnames = [args.img_fname] if len(args.img_fname) > 0 else mylistdir(os.path.join(path, hub), bit='img', end=False)
@@ -141,18 +130,13 @@ if __name__ == '__main__':
 		
 		print(f'Reading images from file: {img_fnames[0]}')
 
-
-
 		read_root_path = os.path.join(path,hub,img_fnames[0],"*")
-		dates = sorted(glob.glob(read_root_path))[start_date_index:]
+		dates = sorted(glob.glob(read_root_path))
+		dates = [x for x in dates if os.path.basename(x) >= start_date]
 		print('Dates: ', [os.path.basename(d) for d in dates])
 
-		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf'))
+		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_1sec'))
 		print("save_root_path: ", save_root_path)
-
-		# if not os.path.exists(save_root_path):
-		# 	os.makedirs(save_root_path)
-
 
 		# ================ Move Model loading etc here ================
 		# Initialize
