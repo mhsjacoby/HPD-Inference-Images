@@ -20,8 +20,6 @@ Helper files used:
 # Process-Images
 After images were collected by the HPDmobile system, they were either pickled and then transferred (most of the homes), or transferred directly (first few homes).
 
-- Need to move in the code from previous repository that unpickles images. 
-
 - Image_Resize.py
 
     Images were originally saved in 336x336 pixels. 
