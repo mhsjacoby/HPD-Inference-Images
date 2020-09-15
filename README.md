@@ -7,7 +7,7 @@ Helper files used:
 - my_functions.py
 
 
-# To-Do
+## To-Do
 - Modify `post_img.py` to generate a grouped confidence value.
 - Move and update unpickling code.
 - Update `Image_Resize.py` to conform to newer practices.
