@@ -1,7 +1,7 @@
 
 # HPD-Inference-Images ReadMe
 
-This repository contains the processing and inferencing code for the HPD mobile project.
+This repository contains the processing and inferencing code for the HPD mobile project. The only branch being used currently is `master`. 
 Helper files used: 
 - gen_argparse.py
 - my_functions.py
