@@ -11,11 +11,11 @@ Author: Maggie Jacoby
 
 
 ## To-Do
-- **Modify `post_img.py` to generate a grouped confidence value.**
-- **Move and update unpickling code.**
+- ~~Modify `post_img.py` to generate a grouped confidence value.~~
+- Move and update unpickling code.
 - Update `Image_Resize.py` to conform to newer practices.
 - ~~Modify `confidence.py` to use `gen_argparse` functions (need to change how `yolo` specific arguments are passed).~~
-- Modify `post_img.py` to use `gen_argparse` functions 
+- ~~Modify `post_img.py` to use `gen_argparse` functions.~~ 
 - Write code to print bounding boxes with confidence level on images that are saved via `copy_image.py`.
 - ~~Move `confidence.py` up one level in the folder structure (need to change how models are accessed).~~
 - ~~Archive  `detect.py`.~~
@@ -48,6 +48,4 @@ Image inferencing is done via yolo (You Only Look Once) version 5 (<https://gith
 
 2. post_img.py
 
-    This takes in the daywise 1-second image csvs and averages to get a 10-second frequency. Output is stored in `.../H6-black/Inference_DB/BS3/img_inf/` in day-wise CSVs (8,640 long).
-
-    **To-Do**: Make this file accept output from confidence.py (probably by using the maximum over the 10 second window). Currently only takes in outputs from detect.py.
+    This takes in the daywise 1-second image csvs and averages to get a 10-second frequency. Uses maximum over the 10 seconds for both occupancy and probability. Output is stored in `.../H6-black/Inference_DB/BS3/img_inf/` in day-wise CSVs (8,640 long). Missing values are nan in pthon, blanks in the csv. Dark images below a certain threshold are shown as missing.
