@@ -14,11 +14,11 @@ Author: Maggie Jacoby
 - **Modify `post_img.py` to generate a grouped confidence value.**
 - **Move and update unpickling code.**
 - Update `Image_Resize.py` to conform to newer practices.
-- ~~Modify `confidence.py` to use `gen_argparse` functions (need to change how `yolo` specific arguments are passed).
+- ~~Modify `confidence.py` to use `gen_argparse` functions (need to change how `yolo` specific arguments are passed).~~
 - Modify `post_img.py` to use `gen_argparse` functions 
 - Write code to print bounding boxes with confidence level on images that are saved via `copy_image.py`.
-- ~~Move `confidence.py` up one level in the folder structure (need to change how models are accessed).
-- ~~Archive  `detect.py`.
+- ~~Move `confidence.py` up one level in the folder structure (need to change how models are accessed).~~
+- ~~Archive  `detect.py`.~~
 
 
 ## Process-Images
