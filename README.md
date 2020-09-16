@@ -1,5 +1,5 @@
 # Introduction
-Author: Maggie Jacoby, updated: 2020-09-15
+Author: Maggie Jacoby
 
 This repository contains the processing and inferencing code for the HPD mobile project.
 Helper files used: 
