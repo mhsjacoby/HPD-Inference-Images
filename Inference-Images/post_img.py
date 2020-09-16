@@ -1,7 +1,7 @@
 """
 post_img.py
 Authors: Sin Yong Tan and Maggie Jacoby
-Edited: 2020-09-01
+Edited: 2020-09-16 use gen_argparse
 
 Input: Folder with img inferences on the 1S (86400 per day) in day-wise CSVS
 Output: Day-wise CSVs with inferences on the 10 seconds
@@ -23,6 +23,7 @@ import time
 from datetime import datetime
 
 from my_functions import *
+from gen_argparse import *
 
 
 
@@ -43,23 +44,9 @@ def create_timeframe(start_date, end_date=None, freq="10S"):
 
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-path','--path', default='AA', type=str, help='path of stored data')
-	parser.add_argument('-hub', '--hub', default='', type=str, help='if only one hub... ')
-	parser.add_argument('-save_location', '--save', default='', type=str, help='location to store files (if different from path')
-	parser.add_argument('-start_date', '--start', default='', type=str, help='type day to start')
+	# uses arguments specifed by gen_argparse.py
 
-	args = parser.parse_args()
-
-	path = args.path
-	save_path = args.save if len(args.save) > 0 else path
-	start_date = args.start
-	home_system = os.path.basename(path.strip('/'))
-	H = home_system.split('-')
-	H_num, color = H[0], H[1][0].upper()
-	hubs = [args.hub] if len(args.hub) > 0 else sorted(mylistdir(path, bit=f'{color}S', end=False))
 	print(f'List of Hubs: {hubs}')
-
 
 	for hub in hubs:
 		start = time.time()
@@ -70,19 +57,20 @@ if __name__ == '__main__':
 		dates = [x for x in dates if os.path.basename(x) >= start_date]
 
 
-		save_root_path = make_storage_directory(os.path.join(save_path,'Inference_DB', hub, 'img_inf'))
-		print("save_root_path: ", save_root_path)
+		save_path = make_storage_directory(os.path.join(save_root,'Inference_DB', hub, 'img_inf'))
+		print("save_path: ", save_path)
 
 		for date_folder_path in dates:
 			date = os.path.basename(date_folder_path).strip('.csv')
 			print(f"Loading date folder: {date} ...")
 
 			data = pd.read_csv(date_folder_path, squeeze=True, index_col=0) # Read in as pd.Series, for resample()
+
 			data.index = pd.to_datetime(data.index)
 			data = data.resample('10S', label='right', closed='right').max() # include right end value, labeled using right end(timestamp)
 
 			timeframe = create_timeframe(date)
 			data = data.reindex(timeframe, fill_value=np.nan)
 			data.index.name = "timestamp"
-			data.to_csv(os.path.join(save_root_path,f'{date}.csv'))
+			data.to_csv(os.path.join(save_path,f'{date}.csv'))
 			
