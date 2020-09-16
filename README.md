@@ -1,10 +1,9 @@
-# Introduction
-Author: Maggie Jacoby
-
 This repository contains the processing and inferencing code for the HPD mobile project.
 Helper files used: 
 - gen_argparse.py
 - my_functions.py
+
+Author: Maggie Jacoby
 
 
 ## To-Do
@@ -17,7 +16,7 @@ Helper files used:
 - Archive  `detect.py`.
 
 
-# Process-Images
+## Process-Images
 After images were collected by the HPDmobile system, they were either pickled and then transferred (most of the homes), or transferred directly (first few homes).
 
 - Image_Resize.py
@@ -30,7 +29,7 @@ After images were collected by the HPDmobile system, they were either pickled an
 
     This code looks at the inferences created (at 1 second frequency) and copies the files into labeled folders, depending on classification confidence level.
 
-# Inference-Images
+## Inference-Images
 Image inferencing is done via yolo (You Only Look Once) version 5 (<https://github.com/ultralytics/yolov5>) algorithm. Additional documentation is in `/yolov5/Source-Documentation`. The trained models and weights may not be updated online because of their size. 
 
 
