@@ -35,11 +35,14 @@ Image inferencing is done via yolo (You Only Look Once) version 5 (<https://gith
 
 
 ## Steps for generating inferences on images:
+
+0. Input files need to be unpickled and 112x112 pixels. Use processing files for this. Images should be stored in `.../H1-red/RS1/img-unpickled/`, then by day and by minute. 
+
 1. confidence.py and detect.py
 
     These are parallel files. detect.py outputs just a binary occupancy prediction (`1 = occupied`). Only one needs to be run. Confidence.py outputs the highest confidence level, above some threshold (`default = 0.1`) from the yolov5 algorithm, as well as a binary prediciton based on a different threshold (`default = 0.5`) for every second. Input to these files is path location to stored images (eg `/Volumes/TOSHIBA-18/H6-black/`) with optional additional arguments, and output is predictions and/or confidence on a 1-second frequency in day-wise CSVs (86,400 entries per day) stored in `.../H6-black/Inference_DB/BS3/img_1sec/`. These files take a long time to run (about 20-30 minutes per day of data for a single hub, or upto 45-60 minutes if running multiple hubs simultaneously.)
 
 2. post_img.py
 
-    This takes in the daywise 1-second image csvs and averages to get a 10-second frequency. Output is stored in ```.../H6-black/Inference_DB/BS3/img_inf/``` in day-wise CSVs (8,640 long).
+    This takes in the daywise 1-second image csvs and averages to get a 10-second frequency. Output is stored in `.../H6-black/Inference_DB/BS3/img_inf/` in day-wise CSVs (8,640 long).
     **To-Do**: Make this file accept output from confidence.py (probably by using the maximum over the 10 second window). Currently only takes in outputs from detect.py.
