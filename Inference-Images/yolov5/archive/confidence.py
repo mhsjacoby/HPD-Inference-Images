@@ -32,6 +32,9 @@ runs around 14~16 FPS
 
 import argparse
 import torch.backends.cudnn as cudnn
+# from yolov5 import *
+# from yolov5.utils.datasets import *
+# from yolov5.utils.utils import *
 from utils.datasets import *
 from utils.utils import *
 import cv2
@@ -111,6 +114,7 @@ if __name__ == '__main__':
 	parser.add_argument('-hub', '--hub', default='', type=str, help='if only one hub... ')
 	parser.add_argument('-save_location', '--save', default='', type=str, help='location to store files (if different from path')
 	parser.add_argument('-start_date','--start', default='', type=str, help='Processing START Date index')
+	
 	# parser.add_argument('-number_files', '--end_date_index', default=10, type=int, help='Number of files to read')
 
 	args = parser.parse_args()
@@ -152,7 +156,7 @@ if __name__ == '__main__':
 		# Load model
 		model = torch.load(args.weights, map_location=device)['model'].float()  # load to FP32
 		model.to(device).eval()
-
+		sys.exit()
 		start = time.time()
 
 		for date_folder_path in dates:
