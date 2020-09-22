@@ -143,6 +143,11 @@ if __name__ == '__main__':
 
 		read_root_path = os.path.join(path,hub,img_fnames[0],"*")
 		dates = sorted(glob.glob(read_root_path))
+
+		if len(dates) == 0:
+			print(f'No dates in file: {read_root_path}. Exiting Program.')
+			sys.exit()
+
 		dates = [x for x in dates if os.path.basename(x) >= start_date]
 		print('Dates: ', [os.path.basename(d) for d in dates])
 
@@ -156,7 +161,7 @@ if __name__ == '__main__':
 		# Load model
 		model = torch.load(args.weights, map_location=device)['model'].float()  # load to FP32
 		model.to(device).eval()
-		sys.exit()
+
 		start = time.time()
 
 		for date_folder_path in dates:
