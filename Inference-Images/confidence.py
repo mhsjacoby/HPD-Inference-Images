@@ -221,5 +221,5 @@ if __name__ == '__main__':
 
 		end = time.time()
 		total_time = (end-start)/3600
-		print(f'Total time taken to process {D} days on {hub}: {total_time:.02} hours')
+		print(f'Total time taken to process {D} days on {hub}: {total_time:.2} hours')
 		

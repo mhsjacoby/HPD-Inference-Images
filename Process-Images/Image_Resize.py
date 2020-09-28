@@ -24,8 +24,6 @@ class ImageFile():
     def __init__(self, sensor, files_dir, house, write_loc, start_date, img_name, home_system, img_sz=32):
         self.sensor = sensor
         self.original_loc = files_dir   
-        # self.dark_days = {}
-        # self.dark_days_summary = {}
         self.home = house
         self.system = home_system
         self.img_sz = img_sz
@@ -34,7 +32,6 @@ class ImageFile():
         self.img_name = img_name
         self.get_params()  
         self.total_per_day = 86400
-        # self.count_of_dark = {}
 
 
     def get_params(self):
@@ -57,23 +54,23 @@ class ImageFile():
         ave_pxl = np.mean(im_array)
         return small_img
 
-    def write_summary(self, days):
-        store_dir = make_storage_dicrectory(os.path.join(self.write_path, self.home, self.sensor, 'Summaries'))
-        fname = os.path.join(store_dir, f'{self.home}-{self.sensor}-img-summary.txt')
-        with open(fname, 'w+') as writer:
-            writer.write('hub day %Capt ')
-            for day in days:
-                total_captured = self.Day_Summary[day]
-                try:
-                    total = total_captured/self.total_per_day
-                    T_perc = 'f{total:.2}'
-                except Exception as e:
-                    print(f'except: {e}')
-                    T_perc = 0.00
-                details = f'{self.sensor} {day} {T_perc}'
-                writer.write(details + '\n')
-        writer.close()
-        print(f'{fname}: Write Successful!')
+    # def write_summary(self, days):
+    #     store_dir = make_storage_dicrectory(os.path.join(self.write_path, self.home, self.sensor, 'Summaries'))
+    #     fname = os.path.join(store_dir, f'{self.home}-{self.sensor}-img-summary.txt')
+    #     with open(fname, 'w+') as writer:
+    #         writer.write('hub day %Capt ')
+    #         for day in days:
+    #             total_captured = self.Day_Summary[day]
+    #             try:
+    #                 total = total_captured/self.total_per_day
+    #                 T_perc = 'f{total:.2}'
+    #             except Exception as e:
+    #                 print(f'except: {e}')
+    #                 T_perc = 0.00
+    #             details = f'{self.sensor} {day} {T_perc}'
+    #             writer.write(details + '\n')
+    #     writer.close()
+    #     print(f'{fname}: Write Successful!')
                 
 
     def main(self):
@@ -126,15 +123,13 @@ class ImageFile():
 
                     end = datetime.now()
                     print(f'Time to process day {day}: {str(end-start).split(".")[0]}. Number of files: {F}')
-                else:
-                    print(f'Day {day} is before start date of {self.start_date}')
             except Exception as e:
                 print(f'Error with file {img_file}: {e}')
 
-        try:
-            self.write_summary(all_days)
-        except Exception as e:
-            print(f'Error writing summary: {e}')
+        # try:
+        #     self.write_summary(all_days)
+        # except Exception as e:
+        #     print(f'Error writing summary: {e}')
 
 
 
