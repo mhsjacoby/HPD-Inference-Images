@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
 	# Standard arguments
 	parser.add_argument('-path','--path', default="AA", type=str, help='path of stored data')
-	parser.add_argument('-hub', '--hub', default='', type=str, help='if only one hub... ')
+	parser.add_argument('-hub', '--hub', default="", nargs="+", type=str, help='if only one hub... ') # Example: python time_window.py -hub BS2 BS3
 	parser.add_argument('-save_location', '--save', default='', type=str, help='location to store files (if different from path')
 	parser.add_argument('-start_date','--start', default='', type=str, help='Processing START Date index')
 	
@@ -128,12 +128,13 @@ if __name__ == '__main__':
 
 	save_path = os.path.join(args.save, home_system) if len(args.save) > 0 else path
 
-	hubs = [args.hub] if len(args.hub) > 0 else sorted(mylistdir(path, bit=f'{color}S', end=False))
+	hubs = args.hub if len(args.hub) > 0 else sorted(mylistdir(path, bit=f'{color}S', end=False))
 	print(f'List of Hubs: {hubs}')
 
 	start_date = args.start
 
 	for hub in hubs:
+
 		img_fnames = [args.img_fname] if len(args.img_fname) > 0 else mylistdir(os.path.join(path, hub), bit='img', end=False)
 
 		if len(img_fnames) > 1:
